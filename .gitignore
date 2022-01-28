@@ -1,6 +1,9 @@
 archive
 data
 .rs
+.RecSys
+.vscode
+.ipynb_checkpoints
 data-beer-reviews
 data-beer-liquor-wine
 data-beers-breweries-reviews
