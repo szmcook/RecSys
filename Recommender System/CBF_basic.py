@@ -78,20 +78,19 @@ class ContentRecommender:
 
 
 
-    def _get_similar_items_to_user_profile(self, topn=1000):
+    def _get_similar_items_to_user_profile(self, n=10):
         cosine_similarities = cosine_similarity(self.active_user_profile, self.tfidf_matrix)
-        similar_indices = cosine_similarities.argsort().flatten()[-topn:]
+        similar_indices = cosine_similarities.argsort().flatten()[-n:]
         similar_items = sorted([(self.item_ids[i], cosine_similarities[0,i]) for i in similar_indices], key=lambda x: -x[1])
         return similar_items
         
-    def recommend_items(self, items_to_ignore=[], topn=10):
+    def recommend_items(self, n=10, items_to_ignore=[]):
         similar_items = self._get_similar_items_to_user_profile()
         similar_items_filtered = list(filter(lambda x: x[0] not in items_to_ignore, similar_items))
-        recommendations = pd.DataFrame(similar_items_filtered, columns=['item_id', 'recStrength']).head(topn)
+        recommendations = pd.DataFrame(similar_items_filtered, columns=['item_id', 'recStrength']).head(n)
+        recommendations = pd.merge(recommendations, self.recipes[['name', 'item_id']], how='left', on='item_id')
         return recommendations
 
-recommender = ContentRecommender(599450)
-
-recommendations = recommender.recommend_items()
-recommendations = pd.merge(recommendations, recommender.recipes[['name', 'item_id']], how='left', on='item_id')
-print(recommendations)
+# recommender = ContentRecommender(599450)
+# recommendations = recommender.recommend_items()
+# print(recommendations)

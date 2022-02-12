@@ -17,8 +17,8 @@ recipes.dropna(inplace=True)
 interactions.dropna(inplace=True)
 
 # Reduce the size of the datasets
-rows = 30_000
-recipes = recipes.sample(rows, random_state=42) # 3000 and seed 42 works fine
+rows = 3000
+recipes = recipes.sample(rows, random_state=42)
 interactions = interactions.loc[interactions['item_id'].isin(recipes['item_id'])]
 
 print(f"rows in clean_recipes: {recipes.shape[0]}, rows in clean_interactions: {interactions.shape[0]}")
