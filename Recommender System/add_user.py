@@ -38,7 +38,7 @@ If you have not tried the suggested item you are free to estimate a rating based
         # get a rating
         rating = input(f"Please provide a rating for {item['name'].iloc[0]}: ")
 
-        if rating == 's':
+        if rating == 'n':
             print('skipping item')
             continue
         else:

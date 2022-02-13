@@ -13,6 +13,7 @@ recipes = recipes.rename(columns={"id":"item_id"})
 interactions = interactions.rename(columns={"recipe_id":"item_id"})
 
 # Fill in 0s or empty strings
+# print(recipes.isna().sum())
 recipes.dropna(inplace=True)
 interactions.dropna(inplace=True)
 

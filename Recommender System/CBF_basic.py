@@ -83,8 +83,9 @@ class ContentRecommender:
     def recommend_items(self, n=10):
         """Recommend a set of n items to the active user"""
         similar_items = self._get_similar_items_to_user_profile()
-        recommendations = pd.DataFrame(similar_items, columns=['item_id', 'recStrength']).head(n)
+        recommendations = pd.DataFrame(similar_items, columns=['item_id', 'Confidence']).head(n)
         recommendations = pd.merge(recommendations, self.recipes[['name', 'item_id']], how='left', on='item_id')
+        recommendations = recommendations.drop(columns=['item_id']).rename(columns={"name":"Recipe Name"})
         return recommendations
 
 # recommender = ContentRecommender(599450)

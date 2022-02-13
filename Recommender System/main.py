@@ -25,15 +25,16 @@ def sign_in():
 
 def recommend(user_id):
     """Asks the user to select an RS method and then makes recommendations"""
-    res = input('Would you like to use the Deep Content Based filter (enter d) the Context-Aware Collaborative Filter (enter c)? ')
-    if res == 'c':
+    res = input('Would you like to use the Collaborative filter (enter 1) or the Context-Aware Context Based Filter (enter 2)? ')
+    if res == '1':
         l = input("Would you like to load the saved model (enter 'l' or train a new one (enter 't')? ")
         load = True if l == 'l' else False
         recommender = CollaborativeRecommender(user_id, load)
-    elif res == 'd':
+    elif res == '2':
         recommender = ContentRecommender(user_id)
     else:
-        print("Please enter either a 'c' or a 'd'\nQuitting system")
+        print("Please enter either a '1' or a '2'\nQuitting system")
+        return
 
     n = int(input('How many items would you like to be recommended? Please enter an integer: '))
     recommendations = recommender.recommend_items(n=n)
