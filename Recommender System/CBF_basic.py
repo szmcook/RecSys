@@ -11,10 +11,12 @@ np.seterr(all='raise')
 
 class ContentRecommender:
     def __init__(self, active_user_id, load=False):
+        """Constructor for CollaborativeRecommender"""
         self.type = 'Content Based Filter'
         self.recipes, self.interactions = self.load_data()
         self.active_user_id = active_user_id
         self.clean_data()
+
         
     def load_data(self):
         """Load the data"""
@@ -54,8 +56,8 @@ class ContentRecommender:
             item_profiles = scipy.sparse.vstack(item_profiles_list)
             return item_profiles
 
-        def build_user_profile(user_id, interactions_indexed):
-            interactions_person = interactions_indexed.loc[user_id]
+        def build_user_profile(interactions_indexed):
+            interactions_person = interactions_indexed.loc[self.active_user_id]
             user_item_profiles = get_item_profiles(interactions_person['item_id'])
             
             user_item_strengths = np.array(interactions_person['rating']).reshape(-1,1)
@@ -68,7 +70,7 @@ class ContentRecommender:
             return user_profile_norm
 
         interactions_indexed = interactions_train[interactions_train['item_id'].isin(self.recipes['item_id'])].set_index('user_id')
-        self.active_user_profile = build_user_profile(self.active_user_id, interactions_indexed)
+        self.active_user_profile = build_user_profile(interactions_indexed)
 
 
 
@@ -86,5 +88,5 @@ class ContentRecommender:
         return recommendations
 
 # recommender = ContentRecommender(599450)
-# recommendations = recommender.recommend_items()
+# recommendations = recommender.recommend_items(n=5)
 # print(recommendations)

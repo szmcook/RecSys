@@ -6,10 +6,6 @@ from add_user import add_user
 import pandas as pd
 interactions = pd.read_csv('data/clean_interactions.csv')
 
-global user_id
-user_id = None
-# ACTIVE_USER = 599450
-
 
 def sign_in():
     """Signs the user in"""
@@ -24,9 +20,10 @@ def sign_in():
             print(f"That username is not recognised, if you wish to add a new user please restart the system")
 
     print(f"signed in as {user_id}")
+    return user_id
 
 
-def recommend():
+def recommend(user_id):
     """Asks the user to select an RS method and then makes recommendations"""
     res = input('Would you like to use the Deep Content Based filter (enter d) the Context-Aware Collaborative Filter (enter c)? ')
     if res == 'c':
@@ -44,18 +41,14 @@ def recommend():
 
 
 def main():
-    if user_id == None:
-        activity = input('Sign in (s) or Add user (u)? ')
-    else:
-        activity = 'r'
-
+    activity = input('Sign in (s) or Add user (u)? ')
+    
     if activity == 's':
-        sign_in()
-        recommend()
+        user_id = sign_in()
+        # user_id = 599450
+        recommend(user_id)
     elif activity == 'u':
         add_user()
-    if activity == 'r':
-        recommend()
 
 
 if __name__ == "__main__":

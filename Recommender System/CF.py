@@ -8,6 +8,7 @@ from collections import defaultdict
 
 class CollaborativeRecommender:
     def __init__(self, active_user_id, load=True):
+        """Constructor for CollaborativeRecommender"""
         self.type = 'Collaborative Filter'
         self.recipes, self.interactions = self.load_data()
         self.active_user_id = active_user_id
