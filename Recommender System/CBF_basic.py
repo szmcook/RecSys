@@ -22,16 +22,7 @@ class ContentRecommender:
         return recipes, interactions
 
     def clean_data(self):
-        n = 5
-        users_interactions_count = self.interactions.groupby(['user_id', 'item_id']).size().groupby('user_id').size()
-        # print(f"Number of users: {len(users_interactions_count)}")
-        users_with_enough_interactions = users_interactions_count[users_interactions_count >= n].reset_index()[['user_id']]
-        # print(f"Number of users with at least {n} interactions: {len(users_with_enough_interactions)}")
-        # print(f"Number of interactions: {len(self.interactions)}")
-        interactions_from_selected_users = self.interactions.merge(users_with_enough_interactions, how = 'right', left_on = 'user_id', right_on = 'user_id')
-        # print(f"Number of interactions from users with at least n interactions:{len(interactions_from_selected_users)}")
-
-        interactions_full = interactions_from_selected_users.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()
+        interactions_full = self.interactions.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()
 
         interactions_train, interactions_test = train_test_split(interactions_full, stratify=interactions_full['user_id'], 
                                                                     test_size=0.2, random_state=666)
@@ -44,7 +35,7 @@ class ContentRecommender:
                             stop_words=stopwords.words('english'))
 
         self.item_ids = self.recipes['item_id'].tolist()
-        vectorizer_input = self.recipes['name'] + " " + self.recipes['description']
+        vectorizer_input = self.recipes['name'] + " " + self.recipes['description'] # add other columns to this
         self.tfidf_matrix = vectorizer.fit_transform(vectorizer_input)
 
         def get_item_profile(item_id):
@@ -91,6 +82,6 @@ class ContentRecommender:
         recommendations = pd.merge(recommendations, self.recipes[['name', 'item_id']], how='left', on='item_id')
         return recommendations
 
-# recommender = ContentRecommender(599450)
-# recommendations = recommender.recommend_items()
-# print(recommendations)
+recommender = ContentRecommender(599450)
+recommendations = recommender.recommend_items()
+print(recommendations)
