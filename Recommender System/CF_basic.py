@@ -70,7 +70,7 @@ model = SVD(verbose=False)
 # model = NMF() # Doesn't really work
 # model = CoClustering(n_cltr_i= 6,verbose = False)
 
-load = False
+load = True
 if load:
     model = pickle.load(open(f'models/{type(model).__name__}.pkl', 'rb'))
 else:
@@ -94,9 +94,10 @@ def recommend_items(uid, model, n):
     pred_ratings = [pred.est for pred in predictions]
 
     # Add the predicted ratings to the test_set
-    p = pd.concat([pd.DataFrame(test_set).drop(columns=[0, 2]), pd.DataFrame(pred_ratings, columns=['prediction'])], axis=1)
-    p.sort_values(by='prediction', ascending=False, inplace=True)
-    return p[:n]
+    p = pd.concat([pd.DataFrame(test_set, columns=[0, 'item_id', 2]).drop(columns=[0, 2]), pd.DataFrame(pred_ratings, columns=['prediction'])], axis=1)
+    p.sort_values(by='prediction', ascending=False, inplace=True)[:n]
+    p = pd.merge(p, recipes[['name', 'item_id']], how='left', on='item_id')
+    return p
 
 
 rs = recommend_items(599450, model, 10)
