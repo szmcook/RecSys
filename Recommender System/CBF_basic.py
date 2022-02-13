@@ -10,18 +10,21 @@ from sklearn.model_selection import train_test_split
 np.seterr(all='raise')
 
 class ContentRecommender:
-    def __init__(self, active_user_id):
+    def __init__(self, active_user_id, load=False):
         self.type = 'Content Based Filter'
         self.recipes, self.interactions = self.load_data()
         self.active_user_id = active_user_id
         self.clean_data()
         
     def load_data(self):
+        """Load the data"""
         recipes = pd.read_csv('data/clean_recipes.csv')
         interactions = pd.read_csv('data/clean_interactions.csv')
         return recipes, interactions
 
     def clean_data(self):
+        """Create a TF-IDF matrix and build a user profile for the active user"""
+
         interactions_full = self.interactions.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()
 
         interactions_train, interactions_test = train_test_split(interactions_full, stratify=interactions_full['user_id'], 
@@ -75,13 +78,13 @@ class ContentRecommender:
         similar_items = sorted([(self.item_ids[i], cosine_similarities[0,i]) for i in similar_indices], key=lambda x: -x[1])
         return similar_items
         
-    def recommend_items(self, n=10, items_to_ignore=[]):
+    def recommend_items(self, n=10):
+        """Recommend a set of n items to the active user"""
         similar_items = self._get_similar_items_to_user_profile()
-        similar_items_filtered = list(filter(lambda x: x[0] not in items_to_ignore, similar_items))
-        recommendations = pd.DataFrame(similar_items_filtered, columns=['item_id', 'recStrength']).head(n)
+        recommendations = pd.DataFrame(similar_items, columns=['item_id', 'recStrength']).head(n)
         recommendations = pd.merge(recommendations, self.recipes[['name', 'item_id']], how='left', on='item_id')
         return recommendations
 
-recommender = ContentRecommender(599450)
-recommendations = recommender.recommend_items()
-print(recommendations)
+# recommender = ContentRecommender(599450)
+# recommendations = recommender.recommend_items()
+# print(recommendations)
