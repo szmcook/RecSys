@@ -4,7 +4,7 @@ from rndm import RandomRecommender
 from add_user import add_user
 
 import pandas as pd
-interactions = pd.read_csv('data/clean_interactions.csv')
+interactions = pd.read_csv('data/interactions_train.csv')
 
 
 def sign_in():
@@ -27,7 +27,7 @@ def recommend(user_id):
     """Asks the user to select an RS method and then makes recommendations"""
     res = input('Would you like to use the Collaborative filter (enter 1) or the Context-Aware Context Based Filter (enter 2)? ')
     if res == '1':
-        l = input("Would you like to load the saved model (enter 'l' or train a new one (enter 't')? ")
+        l = input("Would you like to load the saved model (enter 'l') or train a new one (enter 't')? ")
         load = True if l == 'l' else False
         recommender = CollaborativeRecommender(user_id, load)
     elif res == '2':

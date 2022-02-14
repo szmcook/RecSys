@@ -26,8 +26,8 @@ import matplotlib.pyplot as plt
 """
 
 
-recipes = pd.read_csv('../Recommender System/data/clean_recipes.csv')
-interactions_df = pd.read_csv('../Recommender System/data/clean_interactions.csv')
+recipes = pd.read_csv('../Recommender System/data/recipes.csv')
+interactions_df = pd.read_csv('../Recommender System/data/interactions_train.csv')
 
 users_interactions_count_df = interactions_df.groupby(['user_id', 'item_id']).size().groupby('user_id').size()
 print('# users: %d' % len(users_interactions_count_df))

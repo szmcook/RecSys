@@ -9,8 +9,8 @@ class RandomRecommender():
 
     def load_data(self):
         """Load the dataset from files"""
-        recipes = pd.read_csv('../data/clean_recipes.csv')
-        ratings = pd.read_csv('../data/clean_interactions.csv')
+        recipes = pd.read_csv('../data/recipes.csv')
+        ratings = pd.read_csv('../data/interactions_train.csv')
         return recipes, ratings
 
 

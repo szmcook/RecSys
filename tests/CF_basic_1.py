@@ -10,8 +10,8 @@ from collections import defaultdict
 
 random.seed(0)
 
-interactions = pd.read_csv('data/clean_interactions.csv')
-recipes = pd.read_csv('data/clean_recipes.csv')
+interactions = pd.read_csv('data/interactions_train.csv')
+recipes = pd.read_csv('data/recipes.csv')
 interactions.drop(columns=['review', 'date'], inplace=True)
 
 # use SVD algorithm.

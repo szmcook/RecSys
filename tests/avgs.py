@@ -1,5 +1,5 @@
 import pandas as pd
-recipes = pd.read_csv('data/clean_recipes.csv')
+recipes = pd.read_csv('data/recipes.csv')
 n = recipes.nutrition
 n = n.apply(eval)
 

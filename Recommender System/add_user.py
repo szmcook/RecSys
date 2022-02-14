@@ -1,8 +1,8 @@
 import pandas as pd
 from datetime import datetime
 
-recipes = pd.read_csv('data/clean_recipes.csv')
-interactions = pd.read_csv('data/clean_interactions.csv')
+recipes = pd.read_csv('data/recipes.csv')
+interactions_train = pd.read_csv('data/interactions_train.csv')
 
 
 def add_user():
@@ -13,7 +13,7 @@ def add_user():
     while user_id == None:
         i = int(input())
         # Check the user_id isn't in use already
-        if i in interactions['user_id'].unique():
+        if i in interactions_train['user_id'].unique():
             print(f"{i} is already in use, please enter another integer")
         else:
             user_id = i
@@ -46,7 +46,7 @@ If you have not tried the suggested item you are free to estimate a rating based
             date = datetime.now().strftime("%Y-%m-%d")
             # save to RAW_interactions.csv
             s = f"{user_id},{item['item_id'].iloc[0]},{date},{rating},review\n"
-            with open('data/clean_interactions.csv', "a") as f:
+            with open('data/interactions_train.csv', "a") as f:
                 f.write(s)
 
             print("\nThank you for your rating!\n")

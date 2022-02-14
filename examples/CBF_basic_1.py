@@ -8,17 +8,18 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-recipes = pd.read_csv('data/clean_recipes.csv')
-interactions = pd.read_csv('data/clean_interactions.csv')
+recipes = pd.read_csv('data/recipes.csv')
+interactions_train = pd.read_csv('data/interactions_train.csv')
+interactions_test = pd.read_csv('data/interactions_test.csv')
 
 n = 5
-users_interactions_count = interactions.groupby(['user_id', 'item_id']).size().groupby('user_id').size()
+users_interactions_count = interactions_train.groupby(['user_id', 'item_id']).size().groupby('user_id').size()
 print(f"Number of users: {len(users_interactions_count)}")
 users_with_enough_interactions = users_interactions_count[users_interactions_count >= n].reset_index()[['user_id']]
 print(f"Number of users with at least {n} interactions: {len(users_with_enough_interactions)}")
 
-print(f"Number of  of interactions: {len(interactions)}")
-interactions_from_selected_users = interactions.merge(users_with_enough_interactions, how = 'right', left_on = 'user_id', right_on = 'user_id')
+print(f"Number of  of interactions: {len(interactions_train)}")
+interactions_from_selected_users = interactions_train.merge(users_with_enough_interactions, how = 'right', left_on = 'user_id', right_on = 'user_id')
 print(f"Number of interactions from users with at least n interactions:{len(interactions_from_selected_users)}")
 
 interactions_full = interactions_from_selected_users.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()

@@ -13,24 +13,23 @@ class ContentRecommender:
     def __init__(self, active_user_id, load=False):
         """Constructor for CollaborativeRecommender"""
         self.type = 'Content Based Filter'
-        self.recipes, self.interactions = self.load_data()
+        self.recipes, self.interactions_train = self.load_data()
         self.active_user_id = active_user_id
         self.clean_data()
 
         
     def load_data(self):
         """Load the data"""
-        recipes = pd.read_csv('data/clean_recipes.csv')
-        interactions = pd.read_csv('data/clean_interactions.csv')
-        return recipes, interactions
+        recipes = pd.read_csv('data/recipes.csv')
+        interactions_train = pd.read_csv('data/interactions_train.csv')
+        return recipes, interactions_train
 
     def clean_data(self):
         """Create a TF-IDF matrix and build a user profile for the active user"""
 
-        interactions_full = self.interactions.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()
+        interactions_full = self.interactions_train.groupby(['user_id', 'item_id'])['rating'].sum().apply(lambda x: np.log10(x+1)*2).reset_index()
 
-        interactions_train, interactions_test = train_test_split(interactions_full, stratify=interactions_full['user_id'], 
-                                                                    test_size=0.2, random_state=666)
+        interactions_train, interactions_test = train_test_split(interactions_full, stratify=interactions_full['user_id'], test_size=0.2, random_state=666) # TODO remove once this is done in clean_data.py
 
         vectorizer = TfidfVectorizer(analyzer='word',
                             ngram_range=(1, 2),
