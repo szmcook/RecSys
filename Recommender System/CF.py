@@ -6,20 +6,22 @@ from surprise.model_selection import KFold
 from collections import defaultdict
 from datetime import datetime
 
+recipe_file = "data/recipes.csv"
+interactions_train_file = "data/interactions_train.csv"
+
 class CollaborativeRecommender:
-    def __init__(self, active_user_id, load=True):
+    def __init__(self, load=True):
         """Constructor for CollaborativeRecommender"""
         self.type = 'Collaborative Filter'
         self.recipes, self.interactions_train = self.load_data()
-        self.active_user_id = active_user_id
         self.model = SVD(verbose=False) # SVDpp(verbose=True) or NMF() # Doesn't really work or CoClustering(n_cltr_i= 6,verbose = False)
         self.load = load
 
 
     def load_data(self):
         """Load the data"""
-        interactions_train = pd.read_csv('data/interactions_train.csv')
-        recipes = pd.read_csv('data/recipes.csv')
+        interactions_train = pd.read_csv(interactions_train_file)
+        recipes = pd.read_csv(recipe_file)
         interactions_train.drop(columns=['review', 'date'], inplace=True)
         reader = Reader(rating_scale=(0, 5))
         interactions_train = Dataset.load_from_df(interactions_train[['user_id', 'item_id', 'rating']], reader)
@@ -28,30 +30,45 @@ class CollaborativeRecommender:
 
     def kfold_train(self, kfold=5, k=10, threshold=3.5):
         """Train the model on the interactions_train dataset with the model specified in the constructor"""
-
         kf = KFold(n_splits=kfold)
-
         for trainset, testset in kf.split(self.interactions_train):
             self.model.fit(trainset)
-            predictions = self.model.test(testset)
-
         with open(f'models/{type(self.model).__name__}.pkl', 'wb') as f:
             pickle.dump(self.model, f)
-        return 
+
+    
+    def predict_rating(self, user_id, item_id):
+        try: self.model = pickle.load(open(f'models/{type(self.model).__name__}.pkl', 'rb'))
+        except: self.kfold_train()
+        predictions = self.model.test([[user_id, item_id, 3.]])
+        pred_ratings = [pred.est for pred in predictions]
+        return pred_ratings[0]
+
+    def predict_several_ratings(self, user_id, item_ids):
+        try: self.model = pickle.load(open(f'models/{type(self.model).__name__}.pkl', 'rb'))
+        except: self.kfold_train()
+        p_list = [[user_id, iid, 3.] for iid in item_ids]
+        predictions = self.model.test(p_list)
+        pred_ratings = [pred.est for pred in predictions]
+        return pred_ratings
 
 
-    def recommend_items(self, n=5):
+    def recommend_items(self, active_user_id, n=5):
         """Recommend a set of n items to the active user"""
-        if self.load: self.model = pickle.load(open(f'models/{type(self.model).__name__}.pkl', 'rb'))
+        if self.load: 
+            try:
+                self.model = pickle.load(open(f'models/{type(self.model).__name__}.pkl', 'rb'))
+            except:
+                self.kfold_train()
         else: self.kfold_train()
  
         iids = self.recipes['item_id'].to_list() # All the recipe ids from the dataset as a list
-        test_set = [[self.active_user_id, iid, 1.] for iid in iids] # TODO WORK OUT WHAT THIS 1. IS/SHOULD BE
-        predictions = self.model.test(test_set)
+        p_list = [[active_user_id, iid, 3.] for iid in iids]
+        predictions = self.model.test(p_list)
         pred_ratings = [pred.est for pred in predictions]
 
         # Add the predicted ratings to the test_set
-        p = pd.concat([pd.DataFrame(test_set, columns=[0, 'item_id', 2]).drop(columns=[0, 2]), pd.DataFrame(pred_ratings, columns=['Predicted Rating'])], axis=1)
+        p = pd.concat([pd.DataFrame(p_list, columns=[0, 'item_id', 2]).drop(columns=[0, 2]), pd.DataFrame(pred_ratings, columns=['Predicted Rating'])], axis=1)
         # Add in the data needed for contextual filtering
         p = pd.merge(p, self.recipes[['name', 'item_id', 'minutes', 'nutrition']], how='left', on='item_id')
 
@@ -96,5 +113,7 @@ class CollaborativeRecommender:
 
 
 # recommender = CollaborativeRecommender(599450)
+# pr = recommender.predict_several_ratings(599450, [71603])
+# print(pr)
 # recommendations = recommender.recommend_items()
 # print(recommendations)

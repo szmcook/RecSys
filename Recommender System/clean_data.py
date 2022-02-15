@@ -18,7 +18,7 @@ recipes.dropna(inplace=True)
 interactions.dropna(inplace=True)
 
 # Reduce the size of the datasets
-rows = 3000
+rows = 30000 # 100000 # 
 recipes = recipes.sample(rows, random_state=42)
 
 # Keep only interactions relating to the recipes
@@ -44,7 +44,17 @@ interactions_test = interactions[splt:]
 
 assert interactions_train.shape[0] + interactions_test.shape[0] == interactions.shape[0]
 
-# Save the datasets for use by the RSes
+# Save the datasets for use
 recipes.to_csv("data/recipes.csv", index=False)
 interactions_train.to_csv("data/interactions_train.csv",  index=False)
 interactions_test.to_csv("data/interactions_test.csv",  index=False)
+
+# Combine the datasets for CBF training
+ratings_train = pd.merge(recipes, interactions_train, how='right', on='item_id')
+ratings_train = ratings_train[['user_id', 'item_id', 'name', 'minutes', 'rating']]
+ratings_train['rating'] = ratings_train['rating'].apply(int)
+ratings_train.to_csv("data/ratings_train.csv", index=False)
+
+ratings_test = pd.merge(recipes, interactions_test, how='right', on='item_id')
+ratings_test = ratings_test[['user_id', 'item_id', 'name', 'minutes', 'rating']]
+ratings_test.to_csv("data/ratings_test.csv", index=False)

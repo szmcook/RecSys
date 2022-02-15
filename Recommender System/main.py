@@ -25,20 +25,25 @@ def sign_in():
 
 def recommend(user_id):
     """Asks the user to select an RS method and then makes recommendations"""
-    res = input('Would you like to use the Collaborative filter (enter 1) or the Context-Aware Context Based Filter (enter 2)? ')
+    res = input('Would you like to use the Collaborative filter (enter 1) or the Context-Aware Context Based Filter (enter 2)?\n')
+    l = input("\nIf you haven't recently added a new user, it is strongly recommended that you load a saved model to reduce recommendation times.\nWould you like to load the saved model (enter 'l') or train a new one (enter 't')?\n")
+    load = True if l == 'l' else False
     if res == '1':
-        l = input("Would you like to load the saved model (enter 'l') or train a new one (enter 't')? ")
-        load = True if l == 'l' else False
-        recommender = CollaborativeRecommender(user_id, load)
+        recommender = CollaborativeRecommender(load)
     elif res == '2':
-        recommender = ContentRecommender(user_id)
+        recommender = ContentRecommender(load)
     else:
         print("Please enter either a '1' or a '2'\nQuitting system")
         return
 
-    n = int(input('How many items would you like to be recommended? Please enter an integer: '))
-    recommendations = recommender.recommend_items(n=n)
-    print(f"The recommended items are:\n{recommendations}")
+    print("We're producing your top 5 recommendations")
+    recommendations = recommender.recommend_items(user_id, n=20)
+    print(f"The recommended items are:\n{recommendations.head(5)}")
+
+    more = input("\nWe hope you can see something there that you'll like! If you'd like to see 5 more recommendations please enter '5', otherwise enter any other key\n")
+    if more == '5':
+        print(recommendations.head(10))
+        
 
 
 def main():
